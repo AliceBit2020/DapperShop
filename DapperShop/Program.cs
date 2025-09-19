@@ -2,6 +2,9 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
 using DapperShop.Model;
+using Z.Dapper.Plus;
+
+
 
 namespace DapperShop
 {
@@ -49,22 +52,22 @@ namespace DapperShop
             ////////////////////////////////////////////////
             ///
 
-            var sql1 = @"SELECT  p.Id, p.Name, p.CategoryId, c.Id,  FROM Products p JOIN Categories c ON p.CategoryId = c.Id";
+            //var sql1 = @"SELECT  p.Id, p.Name, p.CategoryId, c.Id,  FROM Products p JOIN Categories c ON p.CategoryId = c.Id";
 
-            var products = connection.Query<Product, Category, Product>(
-                sql1,
-                (product, category) =>
-                {
-                    product.Category = category;
-                    return product;
-                },
-                splitOn: "id"
-            ).ToList();
+            //var products = connection.Query<Product, Category, Product>(
+            //    sql1,
+            //    (product, category) =>
+            //    {
+            //        product.Category = category;
+            //        return product;
+            //    },
+            //    splitOn: "id"
+            //).ToList();
 
-            foreach (var pr in products)
-            {
-                Console.WriteLine($"Product: {pr.Name,-20}, Category: {pr.Category.Name,-20} Price: {pr.Price,-10} CategoryId: {pr.CategoryId,-10} CategoryId2:{pr.Category.Id,-10}  ");
-            }
+            //foreach (var pr in products)
+            //{
+            //    Console.WriteLine($"Product: {pr.Name,-20}, Category: {pr.Category.Name,-20} Price: {pr.Price,-10} CategoryId: {pr.CategoryId,-10} CategoryId2:{pr.Category.Id,-10}  ");
+            //}
 
 
 
@@ -97,14 +100,14 @@ namespace DapperShop
             //  Console.WriteLine("\nЗамовлення з товарами ");
 
             //  // 5. JOIN: отримати всі замовлення з покупцями та товарами
-            var sqlOrders = @"SELECT o.Id AS OrderId, o.OrderDate, c.FullName, pr.Name AS Product, op.Quantity FROM Orders o JOIN Customers c ON o.CustomerId = c.Id JOIN OrderProducts op ON o.Id = op.OrderId JOIN Products pr ON op.ProductId = pr.Id ORDER BY o.Id";
+            //var sqlOrders = @"SELECT o.Id AS OrderId, o.OrderDate, c.FullName, pr.Name AS Product, op.Quantity FROM Orders o JOIN Customers c ON o.CustomerId = c.Id JOIN OrderProducts op ON o.Id = op.OrderId JOIN Products pr ON op.ProductId = pr.Id ORDER BY o.Id";
 
-            var orders = connection.Query(sqlOrders);
+            //var orders = connection.Query(sqlOrders);
 
-            foreach (var o in orders)
-            {
-                Console.WriteLine($"Замовлення {o.OrderId} від {o.FullName} ({o.OrderDate}): {o.Product} x{o.Quantity}");
-            }
+            //foreach (var o in orders)
+            //{
+            //    Console.WriteLine($"Замовлення {o.OrderId} від {o.FullName} ({o.OrderDate}): {o.Product} x{o.Quantity}");
+            //}
 
             ///6. 
             //var sql = "SELECT COUNT(*) FROM Products";
@@ -119,9 +122,44 @@ namespace DapperShop
             //Console.WriteLine($"ProductID: {product.Id}; Name: {product.Name}");
 
             //8.
-            var sql = "SELECT * FROM Products WHERE Id = @productID";
-            Product product_ = connection.QuerySingle<Product>(sql, new { @productID = 1 });
-            Console.WriteLine($"ProductID: {product_.Id}; Name: {product_.Name}");
+            //var sql = "SELECT * FROM Products WHERE Id = @productID";
+            //Product product_ = connection.QuerySingle<Product>(sql, new { @productID = 1 });
+            //Console.WriteLine($"ProductID: {product_.Id}; Name: {product_.Name}");
+
+
+            ///9.
+
+            //var products = new List<Product>{
+            //new Product { Name = "Tablet", Price = 299.99M, CategoryId = 1 },
+            //new Product { Name = "E-Reader", Price = 129.99M, CategoryId = 2 },
+            //new Product { Name = "Sneakers", Price = 89.99M, CategoryId = 3 }
+            // };
+
+
+            //object value = connection.BulkInsert(products);
+
+            //10
+
+        //    var productsToDelete = connection.Query<Product>(
+        //"SELECT * FROM Products WHERE Price < 20").ToList();
+
+        //    connection.BulkDelete(productsToDelete);
+
+            //11  
+
+            var produc = connection.Query<Product>("SELECT * FROM Products").ToList();
+            produc.ForEach(p => p.Price *= 1.1M); // підвищення ціни на 10%
+            connection.BulkUpdate(produc);
+
+            ////1.ДЗ Підвищит ціну продукту який має найменшу кількість продажів
+            ///
+            /// 2.  1ДЗ  в процедурі
+            /// 3. Тригери на видалення об'єктів таблиць: видалені об'єкти переносяться в таблицю видалених об'єктів
+
+            connection.Close();
+
+
+
         }
     }
 }
