@@ -1,8 +1,12 @@
 ﻿
 using Dapper;
-using Microsoft.Data.SqlClient;
 using DapperShop.Model;
+using Microsoft.Data.SqlClient;
+using System.Data;
+using System.Diagnostics.Metrics;
+using System.Text.RegularExpressions;
 using Z.Dapper.Plus;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 
@@ -140,24 +144,82 @@ namespace DapperShop
 
             //10
 
-        //    var productsToDelete = connection.Query<Product>(
-        //"SELECT * FROM Products WHERE Price < 20").ToList();
+            //    var productsToDelete = connection.Query<Product>(
+            //"SELECT * FROM Products WHERE Price < 20").ToList();
 
-        //    connection.BulkDelete(productsToDelete);
+            //    connection.BulkDelete(productsToDelete);
 
             //11  
 
-            var produc = connection.Query<Product>("SELECT * FROM Products").ToList();
-            produc.ForEach(p => p.Price *= 1.1M); // підвищення ціни на 10%
-            connection.BulkUpdate(produc);
+            //var produc = connection.Query<Product>("SELECT * FROM Products").ToList();
+            //produc.ForEach(p => p.Price *= 1.1M); // підвищення ціни на 10%
+            //connection.BulkUpdate(produc);
+
+
 
             ////1.ДЗ Підвищит ціну продукту який має найменшу кількість продажів
             ///
             /// 2.  1ДЗ  в процедурі
-            /// 3. Тригери на видалення об'єктів таблиць: видалені об'єкти переносяться в таблицю видалених об'єктів
+            /// 3. Тригери на видалення об'єктів таблиць: видалені об'єкти переносяться в таблицю видалених о б'єктів
+
+
+
+            ////////////////////////////////////////////
+            ///Підвищит ціну продукту який має найбільшу кількість продажів
+
+
+            //CREATE OR ALTER PROCEDURE IncrPriceMostSoldProduct
+            //AS
+
+            //    BEGIN
+
+            //    DECLARE @Id_most_sold INT
+
+            //    SELECT TOP 1 @Id_most_sold = op.ProductId
+            //    FROM OrderProducts as op
+
+            //    GROUP BY op.ProductId
+            //    ORDER BY SUM(op.Quantity) DESC
+
+            //    UPDATE Products
+            //    SET Price = Price * 10
+
+            //    WHERE Id = @Id_most_sold
+
+
+            //    END
+
+            //    GO
+
+
+
+            ///Dapper Storage Procedure
+
+
+          //  connection.Query("IncrPriceMostSoldProduct");
+
+
+            ////Param Storage Proc
+            ///
+
+            //CREATE PROCEDURE GetCustomerById 
+            //    (@id int)  
+            //AS  
+            //BEGIN    
+            //    SELECT * FROM Customers WHERE Id = @id  
+            //END 
+
+            DynamicParameters dmParam = new DynamicParameters();
+
+
+            dmParam.Add("id", 2);
+
+            var customer = connection.QuerySingleOrDefault<Customer>("GetCustomerById", dmParam);
+
+            Console.WriteLine($"FullName: {customer.FullName} Email: {customer.Email}");
+
 
             connection.Close();
-
 
 
         }
