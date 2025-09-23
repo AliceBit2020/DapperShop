@@ -159,7 +159,7 @@ namespace DapperShop
 
             ////1.ДЗ Підвищит ціну продукту який має найменшу кількість продажів
             ///
-            /// 2.  1ДЗ  в процедурі
+            /// 2.  1ДЗ  в процедурі  (Dapper , FromSql EF CORE)
             /// 3. Тригери на видалення об'єктів таблиць: видалені об'єкти переносяться в таблицю видалених о б'єктів
 
 
@@ -196,7 +196,7 @@ namespace DapperShop
             ///Dapper Storage Procedure
 
 
-          //  connection.Query("IncrPriceMostSoldProduct");
+           connection.Query("IncrPriceMostSoldProduct");
 
 
             ////Param Storage Proc
